@@ -1,5 +1,7 @@
 const mix = require('laravel-mix');
 
+mix.disableSuccessNotifications();
+
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -12,4 +14,28 @@ const mix = require('laravel-mix');
  */
 
 mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+   .sass('resources/sass/app.scss', 'public/css');
+
+mix.webpackConfig({
+   resolve: {
+      alias: {
+         "@": path.resolve(
+            __dirname,
+            "resources/js"
+         ),
+         "@sass": path.resolve(
+            __dirname,
+            "resources/sass"
+         ),
+         "@images": path.resolve(
+            __dirname,
+            "storage/app/public"
+         ),
+      }
+   },
+   module: {
+      rules: [
+      
+      ],
+   }
+});   
