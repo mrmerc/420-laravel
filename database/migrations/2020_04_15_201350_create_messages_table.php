@@ -17,9 +17,10 @@ class CreateMessagesTable extends Migration
             $table->id();
             $table->text('body');
             $table->json('attachments')->nullable();
-            $table->unsignedBigInteger('date')->nullable(false);
+            $table->unsignedBigInteger('timestamp')->nullable(false);
             $table->unsignedBigInteger('user_id')->nullable(false);
             $table->unsignedBigInteger('room_id')->nullable(false);
+            $table->index('timestamp');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

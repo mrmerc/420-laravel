@@ -43,7 +43,7 @@ class User extends Authenticatable implements JWTSubject
      * The roles that belong to the user
      */
     public function roles() {
-        return $this->belongsToMany('App\Models\Role');
+        return $this->belongsToMany('App\Models\Role', 'role_user');
     }
 
     /**
@@ -73,8 +73,19 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    /**
+     * Set password mapper
+     */
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
+    }
+
+    /**
+     * Check if user has role
+     */
+    public function hasRole(Role $role): bool
+    {
+        return $this->roles()->get()->contains($role);
     }
 }

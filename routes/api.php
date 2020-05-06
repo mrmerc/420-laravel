@@ -31,7 +31,8 @@ Route::prefix('v1')->group(function() {
     Route::post('login/google', 'AuthController@handleProviderCallback')
         ->name('login');
 
-    Route::get('user/self', 'AuthController@me')
-        ->name('me')
-        ->middleware(['auth:api']);
+    Route::get('user/self', 'AuthController@me');
+
+    Route::post('chat/message', 'ChatController@broadcastMessage');
+    Route::get('chat/message/history/{roomId}', 'ChatController@getMessageHistory');
 });

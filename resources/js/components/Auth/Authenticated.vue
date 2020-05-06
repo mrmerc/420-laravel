@@ -24,8 +24,6 @@ export default {
 		}
 
 		this.$store.dispatch("loginUser", params);
-		// const response = await axios.get('/api/v1/login/google', { params })
-		// console.log(response.data)
 	},
 }
 </script>

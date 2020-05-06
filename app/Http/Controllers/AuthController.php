@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Socialite;
 use Widmogrod\Monad\Either\{ Either, Left, Right };
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -54,7 +56,10 @@ class AuthController extends Controller
         $result = $this->login($userData);
 
         if ($result instanceof Left) {
-            abort(500, 'Database error');
+            Log::error($result->extract());
+            return response()->json([
+                'error' => 'Database error'
+            ], 500);
         }
 
         //$this->respondWithToken($result->extract());
@@ -90,8 +95,10 @@ class AuthController extends Controller
                 $user->avatar = $userData['avatar'];
                 $user->provider = 'google';
                 $user->provider_id = $userData['id'];
-
                 $user->save();
+
+                $role = Role::where('title', 'user')->first();
+                $user->roles()->save($role);
             }
 
             $token = auth()->login($user);
@@ -137,9 +144,9 @@ class AuthController extends Controller
 
     /**
      * Get unique username
-     * 
+     *
      * @param string $email
-     * 
+     *
      * @return string nickname
      */
     private function getUniqueUsername(string $email) {
