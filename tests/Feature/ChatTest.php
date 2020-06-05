@@ -28,7 +28,7 @@ class ChatTest extends TestCase
     protected function setUp(): void {
         parent::setUp();
 
-        $this->controller = new ChatController();
+        $this->controller = $this->app->make('App\Http\Controllers\ChatController');
         $this->seed(UserSeeder::class);
         $this->seed(RoomSeeder::class);
         $this->seed(MessageSeeder::class);

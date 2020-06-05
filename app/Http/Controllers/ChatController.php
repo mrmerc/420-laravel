@@ -16,17 +16,17 @@ class ChatController extends Controller
 {
     const PAGINATOR_PER_PAGE = 30;
 
-    public function __construct()
+    /**
+     * @var ImageProcessingService $imageProcessingService
+     */
+    private $imageProcessingService;
+
+    public function __construct(ImageProcessingService $imageProcessingService)
     {
-        $this->middleware(
-            [
-                'auth:api',
-                'banned'
-            ],
-            [
-                'except' => []
-            ]
-        );
+        $this->middleware('auth:api');
+        $this->middleware('banned');
+
+        $this->imageProcessingService = $imageProcessingService;
     }
 
     /**
@@ -103,8 +103,7 @@ class ChatController extends Controller
 
             foreach ($messageData['attachments'] as $attachment) {
                 if ($attachment['type'] === 'image') {
-                    $imgService = new ImageProcessingService();
-                    $imgUri = $imgService->saveImg($attachment['source']);
+                    $imgUri = $this->imageProcessingService->saveImg($attachment['source']);
 
                     if ($imgUri instanceof Left) {
                         return $imgUri;

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,12 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function() {
+    // Test APIs
     Route::get('authtest', function () {
         return response()->json([
             'message' => 'test from auth protected api'
         ]);
     })->middleware(['auth:api']);
-
     Route::get('test', function () {
         return response()->json([
             'message' => 'test from base api',
@@ -28,11 +27,26 @@ Route::prefix('v1')->group(function() {
         ]);
     });
 
-    Route::post('login/google', 'AuthController@handleProviderCallback')
-        ->name('login');
-
+    // Authentication
+    Route::post('login/google', 'AuthController@handleProviderCallback');
     Route::get('user/self', 'AuthController@me');
 
+    // Chat
     Route::post('chat/message', 'ChatController@broadcastMessage');
     Route::get('chat/message/history/{roomId}', 'ChatController@getMessageHistory');
+
+    // High
+    Route::get('high/people', 'HighPeopleController@getHighPeople');
+    Route::put('high/people', 'HighPeopleController@incrementHighPeople');
+
+    // Articles
+    Route::get('article/{id}', 'ArticleController@getArticleById');
+    Route::post('article', 'ArticleController@submitArticle');
+
+    // [ADMIN]
+    Route::prefix('admin')->middleware('admin')->group(function () {
+        // Chat
+        // Articles
+        Route::post('article/approve', 'ArticleController@setArticleAvailable');
+    });
 });

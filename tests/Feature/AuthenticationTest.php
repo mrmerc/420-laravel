@@ -4,11 +4,10 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Http\Controllers\AuthController;
 use UserSeeder;
-use Widmogrod\Monad\Either\{ Left, Right };
+use Widmogrod\Monad\Either\{Right};
 
 class AuthenticationTest extends TestCase
 {
