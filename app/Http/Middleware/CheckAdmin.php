@@ -3,11 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-
 use Illuminate\Support\Facades\Auth;
 use App\Models\Role;
 
-class CheckBanned
+class CheckAdmin
 {
     /**
      * Handle an incoming request.
@@ -23,10 +22,10 @@ class CheckBanned
          */
         $user = Auth::user();
 
-        if ($user->isBanned()) {
+        if (!$user->isAdmin()) {
             return response()->json([
-                'message' => 'You are banned!'
-            ], 403);
+                'message' => 'Admin permissions required!'
+            ], 401);
         }
         return $next($request);
     }

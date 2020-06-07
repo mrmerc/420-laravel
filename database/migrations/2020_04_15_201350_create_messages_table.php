@@ -20,6 +20,7 @@ class CreateMessagesTable extends Migration
             $table->unsignedBigInteger('timestamp')->nullable(false);
             $table->unsignedBigInteger('user_id')->nullable(false);
             $table->unsignedBigInteger('room_id')->nullable(false);
+            $table->timestamps();
             $table->index('timestamp');
             $table->foreign('user_id')
                 ->references('id')

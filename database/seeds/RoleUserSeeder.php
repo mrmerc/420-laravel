@@ -25,6 +25,10 @@ class RoleUserSeeder extends Seeder
                 'role_id' => 1, // Banned
                 'user_id' => 2,
             ],
+            [
+                'role_id' => 2, // User
+                'user_id' => 3,
+            ],
         ]);
     }
 }

@@ -10,6 +10,8 @@ use App\Http\Controllers\ChatController;
 use MessageSeeder;
 use UserSeeder;
 use RoomSeeder;
+use RoleSeeder;
+use RoleUserSeeder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Event;
@@ -30,6 +32,8 @@ class ChatTest extends TestCase
 
         $this->controller = $this->app->make('App\Http\Controllers\ChatController');
         $this->seed(UserSeeder::class);
+        $this->seed(RoleSeeder::class);
+        $this->seed(RoleUserSeeder::class);
         $this->seed(RoomSeeder::class);
         $this->seed(MessageSeeder::class);
     }
@@ -53,8 +57,8 @@ class ChatTest extends TestCase
         Event::fake();
 
         $response = $this->json('POST', 'api/v1/chat/message', [
-            'text' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, nulla, accusantium laborum rem alias consectetur necessitatibus fuga tenetur, perferendis ipsum quasi perspiciatis voluptatem distinctio mollitia corporis esse recusandae amet rerum!',
-            'timestamp' => 1588508529,
+            'body' => 'Lorem<html> ipsum dolor sit amet consectetur adipisicing elit. Aperiam, nulla, accusantium laborum rem alias consectetur necessitatibus fuga tenetur, perferendis ipsum quasi perspiciatis voluptatem distinctio mollitia corporis esse recusandae amet rerum!',
+            'timestamp' => 1588508529000,
             'room_id' => 1,
             'user_id' => 1,
             'attachments' => [
@@ -64,15 +68,46 @@ class ChatTest extends TestCase
                 ]
             ]
         ]);
-
         $response->assertStatus(200);
         $this->assertDatabaseHas('messages', [
             'user_id' => 1,
-            'timestamp' => 1588508529,
+            'room_id' => 1,
         ]);
 
         Event::assertNotDispatched(\App\Events\MessageReceived::class, function ($e) {
             $this->assertEquals(1, $e->roomId);
         });
+    }
+
+    public function testBanUserWithErasingMessages(): void
+    {
+        $messages = \App\Models\Message::where('user_id', 3)->get();
+        $this->assertEquals(1, $messages->count());
+
+        $response = $this->json('POST', 'api/v1/admin/chat/ban', [
+            'userId' => 3,
+            'deleteMessageHistory' => true
+        ]);
+
+        $response->assertStatus(200);
+        $user = \App\Models\User::find(3);
+        $bannedRole = \App\Models\Role::find(1);
+        $result = $user->roles()->get()->contains($bannedRole);
+        $this->assertEquals(true, $result);
+        $messages = \App\Models\Message::where('user_id', 3)->get();
+        $this->assertEquals(0, $messages->count());
+    }
+
+    public function testBanUserWithoutErasingMessages(): void
+    {
+        $response = $this->json('POST', 'api/v1/admin/chat/ban', [
+            'userId' => 3
+        ]);
+
+        $response->assertStatus(200);
+        $user = \App\Models\User::find(3);
+        $bannedRole = \App\Models\Role::find(1);
+        $result = $user->roles()->get()->contains($bannedRole);
+        $this->assertEquals(true, $result);
     }
 }

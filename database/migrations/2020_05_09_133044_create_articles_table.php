@@ -17,8 +17,13 @@ class CreateArticlesTable extends Migration
             $table->id();
             $table->string('title')->nullable()->default(null);
             $table->text('body')->nullable(false);
-            $table->unsignedTinyInteger('type')->nullable(false);
             $table->boolean('is_available')->nullable(false)->default(false);
+            $table->unsignedBigInteger('type_id')->nullable(false);
+            $table->foreign('type_id')
+                ->references('id')
+                ->on('article_types')
+                ->onDelete('CASCADE')
+                ->onUpdate('CASCADE');
             $table->timestamps();
         });
     }

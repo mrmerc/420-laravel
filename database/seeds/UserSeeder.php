@@ -27,6 +27,12 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'name' => 'banned',
             ],
+            [
+                'username' => 'shouldBeBannedUser#0',
+                'email' => 'shouldBeBanned@example.com',
+                'password' => Hash::make('password'),
+                'name' => 'shouldBeBanned',
+            ],
         ]);
     }
 }

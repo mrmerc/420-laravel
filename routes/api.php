@@ -40,12 +40,13 @@ Route::prefix('v1')->group(function() {
     Route::put('high/people', 'HighPeopleController@incrementHighPeople');
 
     // Articles
-    Route::get('article/{id}', 'ArticleController@getArticleById');
+    Route::get('article/{articleId}', 'ArticleController@getArticleById');
     Route::post('article', 'ArticleController@submitArticle');
 
     // [ADMIN]
     Route::prefix('admin')->middleware('admin')->group(function () {
         // Chat
+        Route::post('chat/ban', 'ChatController@banUser');
         // Articles
         Route::post('article/approve', 'ArticleController@setArticleAvailable');
     });

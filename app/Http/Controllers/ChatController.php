@@ -5,28 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Events\MessageReceived;
+use App\Components\Attachments\AttachmentFactory;
+use App\Http\Requests\Chat\BroadcastMessageRequest;
 use App\Models\Message;
-use App\Services\ImageProcessingService;
 use Widmogrod\Monad\Either\{Left, Right, Either};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
-use function Safe\{json_decode, json_encode};
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
     const PAGINATOR_PER_PAGE = 30;
 
-    /**
-     * @var ImageProcessingService $imageProcessingService
-     */
-    private $imageProcessingService;
-
-    public function __construct(ImageProcessingService $imageProcessingService)
+    public function __construct()
     {
         $this->middleware('auth:api');
         $this->middleware('banned');
-
-        $this->imageProcessingService = $imageProcessingService;
     }
 
     /**
@@ -36,14 +30,14 @@ class ChatController extends Controller
      *
      * @return JsonResponse
      */
-    public function broadcastMessage(Request $request): JsonResponse
+    public function broadcastMessage(BroadcastMessageRequest $request): JsonResponse
     {
+        $messageData = $request->validated();
         try {
-            $messageData = json_decode($request->getContent(), true);
-
             $result = $this->saveMessage($messageData);
 
             if ($result instanceof Left) {
+                Log::error($result->extract());
                 return response()->json([
                     'error' => 'Server error'
                 ], 500);
@@ -53,6 +47,7 @@ class ChatController extends Controller
 
             return response()->json([], 200);
         } catch (\Throwable $e) {
+            Log::error($e);
             return response()->json([
                 'error' => 'Server error'
             ], 500);
@@ -64,10 +59,11 @@ class ChatController extends Controller
      *
      * @param int $roomId
      *
-     * @return Paginator|void
+     * @return Paginator|JsonResponse
      */
-    public function getMessageHistory(int $roomId): Paginator
+    public function getMessageHistory(int $roomId)
     {
+        // TODO: validate
         try {
             $messages = DB::table('messages')
                 ->where('room_id', $roomId)
@@ -81,7 +77,54 @@ class ChatController extends Controller
 
             return new Paginator($messagesChunk, count($messages), $perPage, $currentPage);
         } catch (\Throwable $e) {
-            return abort(500, 'Database error');
+            Log::error($e);
+            return response()->json([
+                'error' => 'Server error'
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin. Bans user with chat history erasing (optional)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function banUser(Request $request): JsonResponse
+    {
+        // TODO: validate
+        $userId = $request->input('userId');
+        $deleteMessageHistory = $request->input('deleteMessageHistory');
+        try {
+            /**
+             * @var \App\Models\User
+             */
+            $user = \App\Models\User::find($userId);
+            if ($user->isBanned()) {
+                return response()->json([
+                    'error' => 'User is already banned!'
+                ], 400);
+            }
+            $bannedRole = \App\Models\Role::where('title', 'banned')->first();
+            $user->roles()->attach($bannedRole->id);
+            $user->save();
+
+            if ($deleteMessageHistory) {
+                $result = $this->deleteUserMessageHistory($user->id);
+                if ($result instanceof Left) {
+                    return response()->json([
+                        'error' => 'Database error'
+                    ], 500);
+                }
+            }
+            return response()->json([
+                'message' => 'Success'
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error($e);
+            return response()->json([
+                'error' => 'Database error'
+            ], 500);
         }
     }
 
@@ -96,28 +139,43 @@ class ChatController extends Controller
     {
         try {
             $message = new Message;
-            $message->body = $messageData['text'];
-            $message->timestamp = $messageData['timestamp'];
+            $message->body = $messageData['body'];
+            $message->timestamp = round(microtime(true) * 1000);
             $message->room_id = $messageData['room_id'];
             $message->user_id = $messageData['user_id'];
 
             foreach ($messageData['attachments'] as $attachment) {
-                if ($attachment['type'] === 'image') {
-                    $imgUri = $this->imageProcessingService->saveImg($attachment['source']);
+                $attachmentClass = AttachmentFactory::create($attachment['type']);
+                $result = $attachmentClass->processAttachment($attachment);
 
-                    if ($imgUri instanceof Left) {
-                        return $imgUri;
-                    }
-                    $attachment['source'] = $imgUri->extract();
+                if ($result instanceof Left) {
+                    throw new \Exception($result->extract());
                 }
+                $attachment['source'] = $result->extract();
             }
-            $message->attachments = json_encode($messageData['attachments']);
-
+            $message->attachments = $messageData['attachments'];
             $message->save();
         } catch (\Throwable $e) {
             return Left::of($e);
         }
-
         return Right::of(true);
+    }
+
+    /**
+     * Deletes message history by user id
+     *
+     * @param int $userId
+     * @return Either
+     */
+    private function deleteUserMessageHistory(int $userId): Either
+    {
+        // TODO: validate
+        try {
+            Message::where('user_id', $userId)->delete();
+            return Right::of(true);
+        } catch (\Throwable $e) {
+            Log::error($e);
+            return Left::of($e);
+        }
     }
 }

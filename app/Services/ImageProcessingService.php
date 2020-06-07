@@ -17,7 +17,7 @@ final class ImageProcessingService
      *
      * @return Either
      */
-    public function saveImg( string $urlData ): Either
+    public function saveImg(string $urlData): Either
     {
 		try {
             if (!preg_match(self::IMG_BASE64_REGEXP, $urlData)) {
