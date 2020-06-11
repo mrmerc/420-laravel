@@ -1,13 +1,21 @@
 <?php
 
-namespace App\Http\Requests\Article;
+namespace App\Http\Requests\Chat;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Waavi\Sanitizer\Laravel\SanitizesInput;
 
-class SubmitArticleRequest extends FormRequest
+class MessageHistoryRequest extends FormRequest
 {
     use SanitizesInput;
+
+    public function all($keys = null)
+    {
+        $data = parent::all($keys);
+        $data['roomId'] = $this->route('roomId');
+        return $data;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,8 +34,7 @@ class SubmitArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'body' => 'required|string|min:24|max:9999',
-            'typeId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\ArticleType,id',
+            'roomId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Room,id',
         ];
     }
 
@@ -39,8 +46,7 @@ class SubmitArticleRequest extends FormRequest
     public function filters()
     {
         return [
-            'body'  => 'trim|escape',
-            'typeId'  => 'trim|escape',
+            'roomId'  => 'trim|escape',
         ];
     }
 }

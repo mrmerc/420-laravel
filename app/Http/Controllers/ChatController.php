@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Events\MessageReceived;
 use App\Components\Attachments\AttachmentFactory;
+use App\Http\Requests\Chat\AdminBanUserRequest;
 use App\Http\Requests\Chat\BroadcastMessageRequest;
+use App\Http\Requests\Chat\MessageHistoryRequest;
 use App\Models\Message;
 use Widmogrod\Monad\Either\{Left, Right, Either};
 use Illuminate\Support\Facades\DB;
@@ -26,7 +28,7 @@ class ChatController extends Controller
     /**
      * Broadcasts and saves received message
      *
-     * @param Request $request
+     * @param BroadcastMessageRequest $request
      *
      * @return JsonResponse
      */
@@ -57,13 +59,13 @@ class ChatController extends Controller
     /**
      * Get paginated room message history
      *
-     * @param int $roomId
+     * @param MessageHistoryRequest $request
      *
      * @return Paginator|JsonResponse
      */
-    public function getMessageHistory(int $roomId)
+    public function getMessageHistory(MessageHistoryRequest $request)
     {
-        // TODO: validate
+        $roomId = $request->validated()['roomId'];
         try {
             $messages = DB::table('messages')
                 ->where('room_id', $roomId)
@@ -87,19 +89,17 @@ class ChatController extends Controller
     /**
      * Admin. Bans user with chat history erasing (optional)
      *
-     * @param Request $request
+     * @param AdminBanUserRequest $request
      * @return JsonResponse
      */
-    public function banUser(Request $request): JsonResponse
+    public function banUser(AdminBanUserRequest $request): JsonResponse
     {
-        // TODO: validate
-        $userId = $request->input('userId');
-        $deleteMessageHistory = $request->input('deleteMessageHistory');
+        $body = $request->validated();
         try {
             /**
              * @var \App\Models\User
              */
-            $user = \App\Models\User::find($userId);
+            $user = \App\Models\User::find($body['userId']);
             if ($user->isBanned()) {
                 return response()->json([
                     'error' => 'User is already banned!'
@@ -109,12 +109,10 @@ class ChatController extends Controller
             $user->roles()->attach($bannedRole->id);
             $user->save();
 
-            if ($deleteMessageHistory) {
+            if ($body['deleteMessageHistory']) {
                 $result = $this->deleteUserMessageHistory($user->id);
                 if ($result instanceof Left) {
-                    return response()->json([
-                        'error' => 'Database error'
-                    ], 500);
+                    throw new \Exception($result->extract());
                 }
             }
             return response()->json([
@@ -169,7 +167,6 @@ class ChatController extends Controller
      */
     private function deleteUserMessageHistory(int $userId): Either
     {
-        // TODO: validate
         try {
             Message::where('user_id', $userId)->delete();
             return Right::of(true);

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 use App\Http\Controllers\ChatController;
+use Illuminate\Http\JsonResponse;
 use MessageSeeder;
 use UserSeeder;
 use RoomSeeder;
@@ -47,9 +48,10 @@ class ChatTest extends TestCase
 
     public function testMessageHistory(): void
     {
-        $result = $this->controller->getMessageHistory(1);
-
-        $this->assertInstanceOf(LengthAwarePaginator::class, $result);
+        $response = $this->json('GET', "api/v1/chat/message/history/1");
+        $response->assertStatus(200);
+        $response = $this->json('GET', "api/v1/chat/message/history/255");
+        $response->assertStatus(422);
     }
 
     public function testMessageBroadcasting(): void
@@ -101,7 +103,8 @@ class ChatTest extends TestCase
     public function testBanUserWithoutErasingMessages(): void
     {
         $response = $this->json('POST', 'api/v1/admin/chat/ban', [
-            'userId' => 3
+            'userId' => 3,
+            'deleteMessageHistory' => false
         ]);
 
         $response->assertStatus(200);

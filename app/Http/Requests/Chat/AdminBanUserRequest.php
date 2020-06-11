@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Article;
+namespace App\Http\Requests\Chat;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Waavi\Sanitizer\Laravel\SanitizesInput;
 
-class SubmitArticleRequest extends FormRequest
+class AdminBanUserRequest extends FormRequest
 {
     use SanitizesInput;
     /**
@@ -26,8 +26,8 @@ class SubmitArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'body' => 'required|string|min:24|max:9999',
-            'typeId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\ArticleType,id',
+            'userId' => 'required|bail|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\User,id',
+            'deleteMessageHistory' => 'required|boolean'
         ];
     }
 
@@ -39,8 +39,8 @@ class SubmitArticleRequest extends FormRequest
     public function filters()
     {
         return [
-            'body'  => 'trim|escape',
-            'typeId'  => 'trim|escape',
+            'userId'  => 'trim|escape',
+            'deleteMessageHistory' => 'trim|escape',
         ];
     }
 }

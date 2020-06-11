@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 use Socialite;
 use Widmogrod\Monad\Either\{ Either, Left, Right };
-use Illuminate\Support\Facades\Log;
+use Log;
+use Validator;
 
 class AuthController extends Controller
 {
@@ -30,28 +30,38 @@ class AuthController extends Controller
     /**
      * Redirect the user to the Google authentication page.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function redirectToProvider()
     {
-        // No need, because of SPA redirect
+        return response()->json([
+            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
+        ]);
     }
 
     /**
      * Obtain the user information from Google.
      *
-     * @return \Illuminate\Http\Response|void
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function handleProviderCallback(Request $request)
+    public function handleProviderCallback(): JsonResponse
     {
-        $user = Socialite::driver('google')->stateless()->userFromToken($request->access_token);
+        $user = Socialite::driver('google')->stateless()->user();
 
         $userData = [
-            'id' => $user->getId(),
+            'provider_id' => $user->getId(),
             'name' => $user->getName(),
             'email' => $user->getEmail(),
             'avatar' => $user->getAvatar(),
         ];
+
+        Validator::validate($userData, [
+            'provider_id' => 'numeric',
+            'name' => 'string|nullable',
+            'email' => 'string|email',
+            'avatar' => 'string|nullable',
+        ]);
 
         $result = $this->login($userData);
 
@@ -65,7 +75,7 @@ class AuthController extends Controller
         //$this->respondWithToken($result->extract());
         return response()->json([
             'access_token' => $result->extract()
-        ]);
+        ], 200);
     }
 
     /**
@@ -82,19 +92,22 @@ class AuthController extends Controller
             if (!$user) {
                 $user = new User;
 
-                $userNameResult = $this->getUniqueUsername($userData['email']);
+                $usernameFromEmail = explode('@', $userData['email'])[0];
+                $foundNicknamesCounter = User::where(
+                    'username',
+                    'like',
+                    '%' . $usernameFromEmail . '%'
+                )->count();
 
-                if ($userNameResult instanceof Left) {
-                    return $userNameResult;
-                }
+                $nicknameWithId = $usernameFromEmail . '#' . $foundNicknamesCounter;
 
-                $user->username = $userNameResult->extract();
+                $user->username = $nicknameWithId;
                 $user->email = $userData['email'];
                 $user->password = '83JvTqXaLLQRPkTf';
                 $user->name = $userData['name'];
                 $user->avatar = $userData['avatar'];
                 $user->provider = 'google';
-                $user->provider_id = $userData['id'];
+                $user->provider_id = $userData['provider_id'];
                 $user->save();
 
                 $role = Role::where('title', 'user')->first();
@@ -111,7 +124,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function me()
     {
@@ -121,7 +134,7 @@ class AuthController extends Controller
     /**
      * Refresh a token.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function refresh()
     {
@@ -133,37 +146,12 @@ class AuthController extends Controller
      *
      * @param  string $token
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     protected function respondWithToken(string $token)
     {
         return response()->json([
             'access_token' => $token
         ]);
-    }
-
-    /**
-     * Get unique username
-     *
-     * @param string $email
-     *
-     * @return string nickname
-     */
-    private function getUniqueUsername(string $email) {
-        $usernameFromEmail = explode('@', $email)[0];
-
-        try {
-            $foundNicknamesCounter = User::where(
-                'username',
-                'like',
-                '%' . $usernameFromEmail . '%'
-            )->count();
-
-            $nicknameWithId = $usernameFromEmail . '#' . $foundNicknamesCounter;
-
-            return Right::of($nicknameWithId);
-        } catch (\Throwable $e) {
-            return Left::of($e);
-        }
     }
 }

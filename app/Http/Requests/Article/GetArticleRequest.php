@@ -31,7 +31,7 @@ class GetArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'articleId' => 'required|numeric|min:1|exists:\App\Models\Article,id',
+            'articleId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Article,id',
         ];
     }
 }

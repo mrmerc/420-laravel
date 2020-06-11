@@ -28,8 +28,9 @@ Route::prefix('v1')->group(function() {
     });
 
     // Authentication
-    Route::post('login/google', 'AuthController@handleProviderCallback');
-    Route::get('user/self', 'AuthController@me');
+    Route::post('auth/google/url', 'AuthController@redirectToProvider');
+    Route::post('auth/google/callback', 'AuthController@handleProviderCallback');
+    Route::get('auth/me', 'AuthController@me');
 
     // Chat
     Route::post('chat/message', 'ChatController@broadcastMessage');
