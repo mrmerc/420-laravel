@@ -22,7 +22,7 @@ jobs:
         run: |
           cd ./laradock-420/
           echo "$laradock_env" > ./.env
-          docker-compose up -d
+          docker-compose up -d nginx mysql
 
       - name: Validate composer.json and composer.lock
         run: composer validate
