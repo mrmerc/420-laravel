@@ -31,7 +31,7 @@ class CheckBannedMiddlewareTest extends TestCase
         $user = User::find(2);
         $this->actingAs($user);
 
-        $request = Request::create('api/v1/chat/message/history', 'GET', ['roomId' => 1]);
+        $request = Request::create('api/v1/chat/message/history', 'GET', ['room_id' => 1]);
 
         $middleware = new CheckBanned;
 
@@ -45,7 +45,7 @@ class CheckBannedMiddlewareTest extends TestCase
         $user = User::find(1);
         $this->actingAs($user);
 
-        $request = Request::create('api/v1/chat/message/history', 'GET', ['roomId' => 1]);
+        $request = Request::create('api/v1/chat/message/history', 'GET', ['room_id' => 1]);
 
         $middleware = new CheckBanned;
 

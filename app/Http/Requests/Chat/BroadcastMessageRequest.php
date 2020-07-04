@@ -27,7 +27,7 @@ class BroadcastMessageRequest extends FormRequest
     {
         return [
             'body' => 'required|bail|string|min:1|max:1024',
-            'attachments' => 'array|min:0|max:6',
+            'attachments' => 'array|min:1|max:6',
             'attachments.*.type' => 'required|bail|string|min:1|max:24',
             'attachments.*.source' => 'required|bail|string|min:129',
             'timestamp' => 'required|bail|digits:13',

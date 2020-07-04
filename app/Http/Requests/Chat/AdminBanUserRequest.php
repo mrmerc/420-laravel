@@ -26,7 +26,7 @@ class AdminBanUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'userId' => 'required|bail|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\User,id',
+            'user_id' => 'required|bail|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\User,id',
             'deleteMessageHistory' => 'required|boolean'
         ];
     }
@@ -39,7 +39,7 @@ class AdminBanUserRequest extends FormRequest
     public function filters()
     {
         return [
-            'userId'  => 'trim|escape',
+            'user_id'  => 'trim|escape',
             'deleteMessageHistory' => 'trim|escape',
         ];
     }

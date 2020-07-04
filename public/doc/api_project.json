@@ -1,0 +1,20 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "apiDoc basic example",
+  "title": "Custom apiDoc browser title",
+  "url": "https://api.ava.com/api/v1",
+  "template": {
+    "withCompare": false,
+    "forceLanguage": "en"
+  },
+  "sampleUrl": false,
+  "defaultVersion": "0.0.0",
+  "apidoc": "0.3.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2020-07-04T16:48:52.124Z",
+    "url": "http://apidocjs.com",
+    "version": "0.23.0"
+  }
+}

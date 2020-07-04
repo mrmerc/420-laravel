@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,20 +26,20 @@ Route::prefix('v1')->group(function() {
     });
 
     // Authentication
-    Route::post('auth/google/url', 'AuthController@redirectToProvider');
-    Route::post('auth/google/callback', 'AuthController@handleProviderCallback');
-    Route::get('auth/me', 'AuthController@me');
+    Route::get('auth/{provider}/url', 'AuthController@redirectToProvider');
+    Route::post('auth/{provider}/callback', 'AuthController@handleProviderCallback');
+    Route::post('auth/token/refresh', 'AuthController@refresh');
 
     // Chat
     Route::post('chat/message', 'ChatController@broadcastMessage');
-    Route::get('chat/message/history/{roomId}', 'ChatController@getMessageHistory');
+    Route::get('chat/message/history/{room_id}', 'ChatController@getMessageHistory');
 
     // High
     Route::get('high/people', 'HighPeopleController@getHighPeople');
     Route::put('high/people', 'HighPeopleController@incrementHighPeople');
 
     // Articles
-    Route::get('article/{articleId}', 'ArticleController@getArticleById');
+    Route::get('article/{article_id}', 'ArticleController@getArticleById');
     Route::post('article', 'ArticleController@submitArticle');
 
     // [ADMIN]

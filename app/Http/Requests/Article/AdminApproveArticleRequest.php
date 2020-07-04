@@ -24,7 +24,7 @@ class AdminApproveArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'articleId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Article,id',
+            'article_id' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Article,id',
         ];
     }
 }

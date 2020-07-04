@@ -12,7 +12,7 @@ class MessageHistoryRequest extends FormRequest
     public function all($keys = null)
     {
         $data = parent::all($keys);
-        $data['roomId'] = $this->route('roomId');
+        $data['room_id'] = $this->route('room_id');
         return $data;
     }
 
@@ -34,7 +34,7 @@ class MessageHistoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'roomId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Room,id',
+            'room_id' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Room,id',
         ];
     }
 
@@ -46,7 +46,7 @@ class MessageHistoryRequest extends FormRequest
     public function filters()
     {
         return [
-            'roomId'  => 'trim|escape',
+            'room_id'  => 'trim|escape',
         ];
     }
 }

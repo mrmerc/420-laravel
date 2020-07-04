@@ -6,16 +6,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
-use App\Http\Controllers\ChatController;
-use Illuminate\Http\JsonResponse;
 use MessageSeeder;
 use UserSeeder;
 use RoomSeeder;
 use RoleSeeder;
 use RoleUserSeeder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Event;
+use Event;
 
 class ChatTest extends TestCase
 {
@@ -23,19 +20,13 @@ class ChatTest extends TestCase
     use DatabaseMigrations;
     use WithoutMiddleware;
 
-    /**
-     * @var ChatController
-     */
-    private $controller;
-
     protected function setUp(): void {
         parent::setUp();
 
-        $this->controller = $this->app->make('App\Http\Controllers\ChatController');
         $this->seed(UserSeeder::class);
+        $this->seed(RoomSeeder::class);
         $this->seed(RoleSeeder::class);
         $this->seed(RoleUserSeeder::class);
-        $this->seed(RoomSeeder::class);
         $this->seed(MessageSeeder::class);
     }
 
@@ -87,7 +78,7 @@ class ChatTest extends TestCase
         $this->assertEquals(1, $messages->count());
 
         $response = $this->json('POST', 'api/v1/admin/chat/ban', [
-            'userId' => 3,
+            'user_id' => 3,
             'deleteMessageHistory' => true
         ]);
 
@@ -103,7 +94,7 @@ class ChatTest extends TestCase
     public function testBanUserWithoutErasingMessages(): void
     {
         $response = $this->json('POST', 'api/v1/admin/chat/ban', [
-            'userId' => 3,
+            'user_id' => 3,
             'deleteMessageHistory' => false
         ]);
 

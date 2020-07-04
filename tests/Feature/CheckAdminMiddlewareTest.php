@@ -31,7 +31,7 @@ class CheckAdminMiddlewareTest extends TestCase
         $user = User::find(1);
         $this->actingAs($user);
 
-        $request = Request::create('api/v1/admin/article/approve', 'POST', ['articleId' => 1]);
+        $request = Request::create('api/v1/admin/article/approve', 'POST', ['article_id' => 1]);
 
         $middleware = new CheckAdmin;
 
@@ -45,7 +45,7 @@ class CheckAdminMiddlewareTest extends TestCase
         $user = User::find(2);
         $this->actingAs($user);
 
-        $request = Request::create('api/v1/admin/article/approve', 'POST', ['articleId' => 1]);
+        $request = Request::create('api/v1/admin/article/approve', 'POST', ['article_id' => 1]);
 
         $middleware = new CheckAdmin;
 

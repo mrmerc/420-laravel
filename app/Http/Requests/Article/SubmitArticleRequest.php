@@ -27,7 +27,7 @@ class SubmitArticleRequest extends FormRequest
     {
         return [
             'body' => 'required|string|min:24|max:9999',
-            'typeId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\ArticleType,id',
+            'type_id' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\ArticleType,id',
         ];
     }
 
@@ -40,7 +40,7 @@ class SubmitArticleRequest extends FormRequest
     {
         return [
             'body'  => 'trim|escape',
-            'typeId'  => 'trim|escape',
+            'type_id'  => 'trim|escape',
         ];
     }
 }

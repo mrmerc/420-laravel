@@ -28,5 +28,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Article extends Model
 {
-    //
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'is_available',
+    ];
 }

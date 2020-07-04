@@ -4,12 +4,15 @@ namespace App\Http\Requests\Article;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @urlParam articleId required Article ID (min: 1, max: PHP_INT_MAX). No-example
+ */
 class GetArticleRequest extends FormRequest
 {
     public function all($keys = null)
     {
         $data = parent::all($keys);
-        $data['articleId'] = $this->route('articleId');
+        $data['article_id'] = $this->route('article_id');
         return $data;
     }
 
@@ -31,7 +34,7 @@ class GetArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'articleId' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Article,id',
+            'article_id' => 'required|numeric|min:1|max:'. PHP_INT_MAX . '|exists:\App\Models\Article,id',
         ];
     }
 }

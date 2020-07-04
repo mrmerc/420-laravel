@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HighPeople;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Log;
 
 class HighPeopleController extends Controller
 {
@@ -19,39 +19,61 @@ class HighPeopleController extends Controller
     }
 
     /**
-     * Get high people count
+     * @api {get} /high/people      Get high people counter.
+     * @apiName GetHighPeople
+     * @apiGroup HighPeople
+     *
+     * @apiSuccess {Int} count      High people counter
+     *
+     * @apiError (Error 500) DatabaseError
+     *
+     * @return JsonResponse
      */
     public function getHighPeople(): JsonResponse
     {
-        try {
+        try
+        {
             $high = HighPeople::find(1);
             return response()->json([
                 'count' => $high->count
             ], 200);
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e)
+        {
             Log::error($e);
             return response()->json([
-                'error' => 'Database error'
+                'error' => 'DatabaseError'
             ], 500);
         }
     }
 
     /**
-     * Increment high people counter
+     * @api {put} /high/people      Increment high people counter.
+     * @apiName IncrementHighPeople
+     * @apiGroup HighPeople
+     *
+     * @apiSuccess {Int} count      High people counter
+     *
+     * @apiError (Error 500) DatabaseError
+     *
+     * @return JsonResponse
      */
     public function incrementHighPeople(): JsonResponse
     {
-        try {
+        try
+        {
             $high = HighPeople::find(1);
             $high->count += 1;
             $high->save();
             return response()->json([
                 'count' => $high->count
             ], 200);
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e)
+        {
             Log::error($e);
             return response()->json([
-                'error' => 'Database error'
+                'error' => 'DatabaseError'
             ], 500);
         }
     }

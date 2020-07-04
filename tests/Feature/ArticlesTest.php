@@ -36,13 +36,12 @@ class ArticlesTest extends TestCase
     public function testSubmitArticle(): void
     {
         $response = $this->json('POST', 'api/v1/article', [
-            'body' => 'Article test body',
-            'typeId' => 1
+            'body' => 'Article test body is at least 24 characters',
+            'type_id' => 1
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseHas('articles', [
-            'body' => 'Article test body',
-            'typeId' => 1,
+            'body' => 'Article test body is at least 24 characters',
             'is_available' => false
         ]);
     }
@@ -50,8 +49,8 @@ class ArticlesTest extends TestCase
     public function testSubmitArticleWithNotExistingType(): void
     {
         $response = $this->json('POST', 'api/v1/article', [
-            'body' => 'Article test body',
-            'typeId' => 5
+            'body' => 'Article test body not 24',
+            'type_id' => 5
         ]);
         $response->assertStatus(422);
     }
@@ -61,7 +60,7 @@ class ArticlesTest extends TestCase
         factory(\App\Models\Article::class, 1)->create();
 
         $response = $this->json('POST', 'api/v1/admin/article/approve', [
-            'articleId' => 1
+            'article_id' => 1
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseHas('articles', [
