@@ -54,7 +54,6 @@ class ArticleController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -93,7 +92,6 @@ class ArticleController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -119,7 +117,6 @@ class ArticleController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);

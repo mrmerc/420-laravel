@@ -15,7 +15,6 @@ final class HighPeopleService
             $high->count = rand(4, 20);
             $high->save();
         } catch (\Throwable $e) {
-            Log::error($e);
             return Left::of($e);
         }
 

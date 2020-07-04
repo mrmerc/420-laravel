@@ -70,7 +70,6 @@ class ChatController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -122,7 +121,6 @@ class ChatController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -165,7 +163,6 @@ class ChatController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -226,7 +223,6 @@ class ChatController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return Left::of($e);
         }
     }
