@@ -17,7 +17,7 @@ jobs:
           submodules: true
 
       - name: Setup Docker
-        with:
+        env:
           laradock_env: ${{ secrets.LARADOCK_ENV }}
         run: |
           cd ./laradock-420/
