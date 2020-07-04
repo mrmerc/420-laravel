@@ -1,4 +1,4 @@
-name: '420 CI'
+name: 420 CI
 
 on:
   pull_request:
@@ -6,12 +6,16 @@ on:
 
 jobs:
   test_pull_request:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: Setup Docker
-        run: cd ./laradock-420 && docker-compose up -d
+        run: |
+          cd ./laradock-420/
+          docker-compose up -d
 
       - name: Validate composer.json and composer.lock
         run: composer validate
