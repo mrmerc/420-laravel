@@ -1,8 +1,12 @@
 name: 420 CI
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
-    branches: [ 'master' ]
+    branches:
+      - master
 
 jobs:
   test_pull_request:
