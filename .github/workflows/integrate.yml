@@ -1,17 +1,28 @@
-name: '420 CI'
+name: 420 CI
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
-    branches: [ 'master' ]
+    branches:
+      - master
 
 jobs:
   test_pull_request:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: Setup Docker
-        run: cd ./laradock-420 && docker-compose up -d
+        env:
+          laradock_env: ${{ secrets.LARADOCK_ENV }}
+        run: |
+          cd ./laradock-420/
+          echo "$laradock_env" > ./.env
+          docker-compose up -d nginx mysql
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -20,4 +31,4 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run test suite
-        run: phpunit
+        run: vendor/bin/phpunit -v

@@ -55,7 +55,6 @@ class AuthController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'SocialiteProviderError'
             ], 500);
@@ -106,7 +105,6 @@ class AuthController extends Controller
             $result = $this->findOrCreateUser($userData);
 
             if ($result instanceof Left) {
-                Log::error($result->extract());
                 return response()->json([
                     'error' => 'DatabaseError'
                 ], 500);

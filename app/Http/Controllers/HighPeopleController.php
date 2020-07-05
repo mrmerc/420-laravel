@@ -40,7 +40,6 @@ class HighPeopleController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
@@ -71,7 +70,6 @@ class HighPeopleController extends Controller
         }
         catch (\Throwable $e)
         {
-            Log::error($e);
             return response()->json([
                 'error' => 'DatabaseError'
             ], 500);
