@@ -13,17 +13,8 @@
 
 Route::prefix('v1')->group(function() {
     // Test APIs
-    Route::get('authtest', function () {
-        return response()->json([
-            'message' => 'test from auth protected api'
-        ]);
-    })->middleware(['auth:api']);
-    Route::get('test', function () {
-        return response()->json([
-            'message' => 'test from base api',
-            'ip' => request()->ip()
-        ]);
-    });
+    Route::get('authtest', 'TestController@authTest')->middleware(['auth:api']);
+    Route::get('test', 'TestController@test');
 
     // Authentication
     Route::get('auth/{provider}/url', 'AuthController@redirectToProvider');
