@@ -1,8 +1,6 @@
 version: '3.7'
-
 services:
-
-  #PHP Service
+  #PHP-FPM service
   app:
     build:
       context: .
@@ -12,29 +10,31 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
+      - SERVICE_NAME=app
+      - SERVICE_TAGS=dev
     working_dir: /var/www
     volumes:
       - ./:/var/www
       - ./.docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - app-network
+      - 420-network
 
-  #Nginx Service
+  #Nginx service
   webserver:
-    image: nginx:alpinewebserver
+    image: nginx:alpine
     container_name: 420-nginx
     restart: unless-stopped
     tty: true
     ports:
       - "80:80"
-      - "443:443"
+    depends_on:
+      - app
+      - db
     volumes:
       - ./:/var/www
       - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
-      - app-network
+      - 420-network
 
   # MySQL service
   db:
@@ -43,23 +43,25 @@ services:
     restart: unless-stopped
     tty: true
     ports:
-      - '42001':'3306'
+      - "42001:3306"
     environment:
-      MYSQL_DATABASE: 420-schema
-      MYSQL_ROOT_PASSWORD: password
-      SERVICE_NAME: mysql
-      SERVICE_TAGS: dev
+      - MYSQL_DATABASE=420-schema
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=laravel
+      - MYSQL_PASSWORD=secret
+      - SERVICE_NAME=mysql
+      - SERVICE_TAGS=dev
     volumes:
-      - dbdata:/var/lib/mysql
+      - mysqldata:/var/lib/mysql
       - ./.docker/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
-      - app-network
+      - 420-network
 
-#Docker Networks
+#Networks
 networks:
-  app-network:
+  420-network:
     driver: bridge
 #Volumes
 volumes:
-  dbdata:
+  mysqldata:
     driver: local
