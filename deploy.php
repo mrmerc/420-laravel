@@ -22,10 +22,14 @@ add('writable_dirs', []);
 
 // Hosts
 
-host('420api.bymerc.xyz')
+host('188.120.255.154')
     ->user('deployer')
+    ->port(4423)
     ->identityFile('~/.ssh/420deployer')
-    ->set('deploy_path', '/var/www/420api.bymerc.xyz/420-laravel    ');    
+    ->multiplexing(true)
+    ->addSshOption('UserKnownHostsFile', '/dev/null')
+    ->addSshOption('StrictHostKeyChecking', 'no')
+    ->set('deploy_path', '/var/www/420api.bymerc.xyz/420-laravel');    
     
 // Tasks
 
