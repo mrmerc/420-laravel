@@ -20,9 +20,8 @@ jobs:
         env:
           laradock_env: ${{ secrets.LARADOCK_ENV }}
         run: |
-          cd ./laradock-420/
           echo "$laradock_env" > ./.env
-          docker-compose up -d nginx mysql
+          docker-compose up -d
 
       - name: Validate composer.json and composer.lock
         run: composer validate
